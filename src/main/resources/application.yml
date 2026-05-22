@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: user_center
+# DataSource Config
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/user_manage
+    username: root
+    password: root
+server:
+  port: 8080
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.zyc.user_center.model
+  configuration:
+    map-underscore-to-camel-case: false  #默认为true，会将下划线转驼峰，驼峰转下划线
