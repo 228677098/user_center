@@ -7,10 +7,18 @@ spring:
     url: jdbc:mysql://localhost:3306/user_manage
     username: root
     password: root
+  session:
+    timeout: 81264  #session超时时间 ms
 server:
   port: 8080
+
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
   type-aliases-package: com.zyc.user_center.model
   configuration:
     map-underscore-to-camel-case: false  #默认为true，会将下划线转驼峰，驼峰转下划线
+  global-config:
+    db-config:
+      logic-delete-field: isDelete # 全局逻辑删除字段名(deleted为实体类属性名称)
+      logic-delete-value: 1 # 逻辑已删除值。可选，默认值为 1
+      logic-not-delete-value: 0 # 逻辑未删除值。可选，默认值为 0
