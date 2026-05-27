@@ -30,16 +30,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     private static final String SALT = "zyc";
 
     @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword) {
+    public long userRegister(String userAccount, String userPassword, String checkPassword, String planetCode) {
 
         //校验
-        if(StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)){
+        if(StringUtils.isAnyBlank(userAccount, userPassword, checkPassword, planetCode)){
             return -1;
         }
         if(userAccount.length() < 4){
             return -1;
         }
         if(userPassword.length() < 8 || checkPassword.length() < 8){
+            return -1;
+        }
+        if(planetCode.length() > 5){
             return -1;
         }
         //账户不能包含特殊字符
@@ -55,6 +58,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
         long count = userMapper.selectCount(queryWrapper);
+        if(count > 0){
+            return -1;
+        }
+        //星球编号不能重复
+        queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("planetCode", planetCode);
+        count = userMapper.selectCount(queryWrapper);
         if(count > 0){
             return -1;
         }
@@ -128,6 +138,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         safetyUser.setCreateTime(originUser.getCreateTime());
         safetyUser.setUserRole(originUser.getUserRole());
         return safetyUser;
+    }
+
+    @Override
+    public int userLogout(HttpServletRequest request) {
+        request.getSession().removeAttribute(USER_LOGIN_STATE);
+        return 1;
     }
 }
 

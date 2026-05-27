@@ -10,6 +10,7 @@ import java.io.Serializable;
  */
 @Data
 public class UserRegisterRequest implements Serializable {
+
     private static final long serialVersionUID = -1L;
     /**
      * 用户账户
@@ -23,4 +24,8 @@ public class UserRegisterRequest implements Serializable {
      * 校验密码
      */
     private String checkPassword;
+    /**
+     * 星球编号
+     */
+    private String planetCode;
 }
