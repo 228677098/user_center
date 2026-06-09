@@ -2,6 +2,8 @@ package com.zyc.user_center.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zyc.user_center.common.ErrorCode;
+import com.zyc.user_center.exception.BusinessException;
 import com.zyc.user_center.model.domain.User;
 import com.zyc.user_center.service.UserService;
 import com.zyc.user_center.mapper.UserMapper;
@@ -34,39 +36,39 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
         //校验
         if(StringUtils.isAnyBlank(userAccount, userPassword, checkPassword, planetCode)){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "必传参数不能为空");
         }
         if(userAccount.length() < 4){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号过短");
         }
         if(userPassword.length() < 8 || checkPassword.length() < 8){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户密码过短");
         }
         if(planetCode.length() > 5){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "星球编号过长");
         }
         //账户不能包含特殊字符
         String validPattern = "^[a-zA-Z0-9]+$";
         if(!userAccount.matches(validPattern)){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号不能包含特殊字符");
         }
         //密码和校验密码相同
         if(!userPassword.equals(checkPassword)){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码和校验密码不一致");
         }
         //账户不能重复
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
         long count = userMapper.selectCount(queryWrapper);
         if(count > 0){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号重复");
         }
         //星球编号不能重复
         queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("planetCode", planetCode);
         count = userMapper.selectCount(queryWrapper);
         if(count > 0){
-            return -1;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "星球编号重复");
         }
         //3. 加密
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
@@ -76,7 +78,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user.setUserPassword(encryptPassword);
         boolean saveResult = this.save(user);
         if(!saveResult){
-            return -1;
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败");
         }
         return user.getId();
     }
@@ -85,18 +87,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public User userLogin(String userAccount, String userPassword, HttpServletRequest request) {
         //1.校验
         if(StringUtils.isAnyBlank(userAccount, userPassword)){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "必传参数不能为空");
         }
         if(userAccount.length() < 4){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号过短");
         }
         if(userPassword.length() < 8){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户密码过短");
         }
         //账户不能包含特殊字符
         String validPattern = "^[a-zA-Z0-9]+$";
         if(!userAccount.matches(validPattern)){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号不能包含特殊字符");
         }
 
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
@@ -110,7 +112,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //3.用户是否存在
         if(user == null){
             log.info("user login failed,userAccount not match password");
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在");
         }
         //4.返回用户
         User safetyUser = getSafetyUser(user);
