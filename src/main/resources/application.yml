@@ -1,7 +1,9 @@
 spring:
   application:
     name: user_center
-# DataSource Config
+  profiles:
+    active: @profile.active@
+  # DataSource Config
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/user_manage
@@ -11,6 +13,8 @@ spring:
     timeout: 81264  #session超时时间 ms
 server:
   port: 8080
+  servlet:
+    context-path: /api
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml

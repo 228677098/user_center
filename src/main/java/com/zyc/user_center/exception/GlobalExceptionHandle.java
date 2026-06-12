@@ -21,7 +21,7 @@ public class GlobalExceptionHandle<T> {
     @ExceptionHandler(RuntimeException.class)
     public BaseResponse<T> handleException(RuntimeException e){
         log.error("RuntimeException", e);
-        return  ResultUtil.error(ErrorCode.SYSTEM_ERROR,e.getMessage(),"");
+        return  ResultUtil.error(ErrorCode.SYSTEM_ERROR,"发生了一些问题，请联系管理员");
     }
 
 
